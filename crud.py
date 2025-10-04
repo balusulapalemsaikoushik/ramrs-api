@@ -39,6 +39,7 @@ def _select_answers(clue: pd.Series):
 def _get_ranked_clues():
     clues_ranked = pd.read_json(CLUES_PATH)
     clues_ranked = clues_ranked[~clues_ranked["label"].isin(UNNECESSARY_LABELS)]
+    clues_ranked = clues_ranked[clues_ranked["answers"].str.len() > 0]
     clues_ranked.loc[:, "category"] = clues_ranked["answers"].apply(_get_category)
     clues_ranked.loc[:, "answers"] = clues_ranked.apply(_select_answers, axis=1)
     clues_ranked.loc[:, "frequency"] = clues_ranked["answers"].apply(len)
@@ -46,4 +47,4 @@ def _get_ranked_clues():
 
 def get_category(category: str):
     clues = _get_ranked_clues()
-    return clues.loc[clues["category"] == category].head(50).to_dict(orient="records")
+    return clues.loc[clues["category"] == category].to_dict(orient="records")
