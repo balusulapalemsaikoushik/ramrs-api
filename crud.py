@@ -1,9 +1,7 @@
-from pathlib import Path
-from typing import List
-
 import pandas as pd
 
-CLUES_PATH = Path("./clues.json")
+from database import db, get_clues
+
 UNNECESSARY_LABELS = [
     "CARDINAL",
     "ORDINAL",
@@ -15,7 +13,7 @@ UNNECESSARY_LABELS = [
     "NORP",
 ]
 
-def _get_category(answers: List[str]):
+def _get_category(answers):
     category_frequencies = {}
     for answer in answers:
         if (category := answer["category"]) in category_frequencies:
@@ -24,7 +22,7 @@ def _get_category(answers: List[str]):
             category_frequencies[category] = 1
     return max(category_frequencies, key=category_frequencies.get)
 
-def _select_answers(clue: pd.Series):
+def _select_answers(clue):
     selected_answers = []
     answer_frequencies = {}
     for answer in clue["answers"]:
@@ -37,7 +35,7 @@ def _select_answers(clue: pd.Series):
     return sorted(selected_answers, key=lambda answer: answer_frequencies[answer["answer"]], reverse=True)
 
 def _get_ranked_clues():
-    clues_ranked = pd.read_json(CLUES_PATH)
+    clues_ranked = pd.DataFrame(get_clues(db))
     clues_ranked = clues_ranked[~clues_ranked["label"].isin(UNNECESSARY_LABELS)]
     clues_ranked = clues_ranked[clues_ranked["answers"].str.len() > 0]
     clues_ranked.loc[:, "category"] = clues_ranked["answers"].apply(_get_category)
@@ -45,6 +43,6 @@ def _get_ranked_clues():
     clues_ranked.loc[:, "frequency"] = clues_ranked["answers"].apply(len)
     return clues_ranked.sort_values(by="frequency", ascending=False)
 
-def get_category(category: str):
+def get_category(category):
     clues = _get_ranked_clues()
     return clues.loc[clues["category"] == category].to_dict(orient="records")
