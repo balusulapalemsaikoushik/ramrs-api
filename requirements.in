@@ -1,4 +1,6 @@
 fastapi
+uvicorn
 pymongo
+pandas
 pydantic
 pydantic-settings
