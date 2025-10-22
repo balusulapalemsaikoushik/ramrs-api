@@ -10,4 +10,5 @@ class Clue(BaseModel):
     clue: str
     label: str
     answers: List[Answer]
+    wildcard: bool
     frequency: int
