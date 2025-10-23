@@ -9,7 +9,7 @@ app = FastAPI()
 @app.get("/")
 async def main():
     return {
-        "message": "welcome to version 0.0.3 of the ramrs api"
+        "message": "welcome to version 0.0.4 of the ramrs api"
     }
 
 @app.get("/{category}", response_model=List[Clue])

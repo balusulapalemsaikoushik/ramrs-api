@@ -9,6 +9,7 @@ class Answer(BaseModel):
 class Clue(BaseModel):
     clue: str
     label: str
+    answer: Answer | None
     answers: List[Answer]
     wildcard: bool
     frequency: int

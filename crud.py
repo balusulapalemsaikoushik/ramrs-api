@@ -13,9 +13,11 @@ UNNECESSARY_LABELS = [
     "NORP",
 ]
 
-def _get_category(answers):
+def _get_category(clue):
+    if (answer := clue.answer) is not None:
+        return answer["category"]
     category_frequencies = {}
-    for answer in answers:
+    for answer in clue.answers:
         if (category := answer["category"]) in category_frequencies:
             category_frequencies[category] += 1
         else:
@@ -38,7 +40,7 @@ def _get_ranked_clues():
     clues_ranked = pd.DataFrame(get_clues(db))
     clues_ranked = clues_ranked[~clues_ranked["label"].isin(UNNECESSARY_LABELS)]
     clues_ranked = clues_ranked[clues_ranked["answers"].str.len() > 0]
-    clues_ranked.loc[:, "category"] = clues_ranked["answers"].apply(_get_category)
+    clues_ranked.loc[:, "category"] = clues_ranked.apply(_get_category, axis=1)
     clues_ranked.loc[:, "answers"] = clues_ranked.apply(_select_answers, axis=1)
     clues_ranked.loc[:, "frequency"] = clues_ranked["answers"].apply(len)
     return clues_ranked.sort_values(by="frequency", ascending=False)

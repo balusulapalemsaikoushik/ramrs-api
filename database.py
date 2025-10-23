@@ -33,7 +33,8 @@ def get_clues(db):
     return list(cursor)
 
 def insert_clues(db, clues_data):
-    clues_data = [clue | {"wildcard": False} for clue in clues_data]
+    manual_data = {"answer": None, "wildcard": False}
+    clues_data = [clue | manual_data for clue in clues_data]
     clues = db["clues"]
     clues.insert_many(clues_data)
 
