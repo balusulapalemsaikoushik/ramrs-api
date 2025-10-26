@@ -45,6 +45,8 @@ def _get_ranked_clues():
     clues_ranked.loc[:, "frequency"] = clues_ranked["answers"].apply(len)
     return clues_ranked.sort_values(by="frequency", ascending=False)
 
-def get_category(category):
+def get_grouped_clues():
     clues = _get_ranked_clues()
-    return clues.loc[clues["category"] == category].to_dict(orient="records")
+    return clues.groupby("category").apply(
+        lambda category: category.to_dict(orient="records"), include_groups=False
+    ).to_dict()

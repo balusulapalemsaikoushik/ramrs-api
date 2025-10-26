@@ -23,9 +23,8 @@ def get_clues_data(clues_path):
         clues_data = json.loads(clues_file.read())
     return clues_data
 
-def get_db(connection_string):
-    client = MongoClient(connection_string, server_api=ServerApi("1"))
-    return client[settings.DB_NAME]
+def get_client(connection_string):
+    return MongoClient(connection_string, server_api=ServerApi("1"))
 
 def get_clues(db):
     clues = db["clues"]
@@ -38,8 +37,12 @@ def insert_clues(db, clues_data):
     clues = db["clues"]
     clues.insert_many(clues_data)
 
-db = get_db(get_connection_string(settings))
+client = get_client(get_connection_string(settings))
+db = client[settings.DB_NAME]
 
 if __name__ == "__main__":
-    clues_data = get_clues_data(CLUES_PATH)
-    insert_clues(db, clues_data)
+    try:
+        clues_data = get_clues_data(CLUES_PATH)
+        insert_clues(db, clues_data)
+    finally:
+        client.close()

@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 from pathlib import Path
-from database import db, get_clues
+from database import client, db, get_clues
 
 BACKUP_PATH = Path("./backup/")
 
@@ -28,5 +28,8 @@ def load_backup(backup_path):
     clues.insert_many(backup)
 
 if __name__ == "__main__":
-    download_backup(BACKUP_PATH)
-    # load_backup(BACKUP_PATH)
+    try:
+        download_backup(BACKUP_PATH)
+        # load_backup(BACKUP_PATH)
+    finally:
+        client.close()
