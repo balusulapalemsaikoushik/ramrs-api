@@ -16,7 +16,7 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 async def main():
     return {
-        "message": "welcome to version 0.0.6 of the ramrs api"
+        "message": "welcome to version 0.0.7 of the ramrs api"
     }
 
 @app.get("/clues", response_model=Dict[str, List[Clue]])
