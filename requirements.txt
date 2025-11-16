@@ -8,6 +8,8 @@ annotated-types==0.7.0
     # via pydantic
 anyio==4.11.0
     # via starlette
+certifi==2025.10.5
+    # via -r requirements.in
 click==8.3.0
     # via uvicorn
 colorama==0.4.6

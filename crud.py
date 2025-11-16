@@ -61,3 +61,7 @@ def get_grouped_clues():
     return clues.groupby("category").apply(
         lambda category: category.to_dict(orient="records"), include_groups=False
     ).to_dict()
+
+def get_category_clues(category):
+    clues = _get_ranked_clues()
+    return clues.loc[clues["category"] == category].to_dict(orient="records")

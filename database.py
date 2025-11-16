@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from urllib.parse import quote_plus
 
+import certifi
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -24,7 +25,11 @@ def get_clues_data(clues_path):
     return clues_data
 
 def get_client(connection_string):
-    return MongoClient(connection_string, server_api=ServerApi("1"))
+    return MongoClient(
+        connection_string,
+        server_api=ServerApi("1"),
+        tlsCAFile=certifi.where(),
+    )
 
 def get_clues(db):
     clues = db["clues"]

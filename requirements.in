@@ -4,3 +4,4 @@ pymongo
 pandas
 pydantic
 pydantic-settings
+certifi
