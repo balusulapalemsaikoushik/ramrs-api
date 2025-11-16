@@ -31,9 +31,14 @@ def get_client(connection_string):
         tlsCAFile=certifi.where(),
     )
 
-def get_clues(db):
+# def get_clues(db):
+#     clues = db["clues"]
+#     cursor = clues.find({}, {"_id": 0})
+#     return list(cursor)
+
+def get_clues(db, category):
     clues = db["clues"]
-    cursor = clues.find({}, {"_id": 0})
+    cursor = clues.find({"category": category})
     return list(cursor)
 
 def insert_clues(db, clues_data):

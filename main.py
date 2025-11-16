@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
-from typing import Dict, List
+# from typing import Dict, List
+from typing import List
 from fastapi import FastAPI
 
 import crud
@@ -16,13 +17,17 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 async def main():
     return {
-        "message": "welcome to version 0.0.8 of the ramrs api"
+        "message": "welcome to version 0.1.0 of the ramrs api"
     }
 
-@app.get("/clues", response_model=Dict[str, List[Clue]])
-async def get_grouped_clues():
-    return crud.get_grouped_clues()
+# @app.get("/clues", response_model=Dict[str, List[Clue]])
+# async def get_grouped_clues():
+#     return crud.get_grouped_clues()
+
+# @app.get("/clues/{category}", response_model=List[Clue])
+# async def get_category_clues(category: str):
+#     return crud.get_category_clues(category)
 
 @app.get("/clues/{category}", response_model=List[Clue])
 async def get_category_clues(category: str):
-    return crud.get_category_clues(category)
+    return crud.get_ranked_clues(category)
