@@ -10,10 +10,14 @@ anyio==4.11.0
     # via starlette
 certifi==2025.10.5
     # via -r requirements.in
+cffi==2.0.0
+    # via cryptography
 click==8.3.0
     # via uvicorn
 colorama==0.4.6
     # via click
+cryptography==46.0.3
+    # via pyjwt
 dnspython==2.8.0
     # via pymongo
 fastapi==0.118.2
@@ -26,6 +30,8 @@ numpy==2.3.3
     # via pandas
 pandas==2.3.3
     # via -r requirements.in
+pycparser==2.23
+    # via cffi
 pydantic==2.12.0
     # via
     #   -r requirements.in
@@ -34,6 +40,8 @@ pydantic==2.12.0
 pydantic-core==2.41.1
     # via pydantic
 pydantic-settings==2.11.0
+    # via -r requirements.in
+pyjwt[crypto]==2.10.1
     # via -r requirements.in
 pymongo==4.15.3
     # via -r requirements.in

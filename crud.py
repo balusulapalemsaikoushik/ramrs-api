@@ -1,6 +1,8 @@
+from bson.objectid import ObjectId
+from fastapi import HTTPException
 import pandas as pd
 
-from database import db, get_clues
+from database import db
 
 UNNECESSARY_LABELS = [
     "CARDINAL",
@@ -44,38 +46,29 @@ def _select_answers(clue):
         print(f'WARNING: The answers for clue "{clue["clue"]}" need attention')
         return None
 
-# def _get_ranked_clues():
-#     clues_ranked = pd.DataFrame(get_clues(db))
-#     clues_ranked.dropna(subset=["clue"], inplace=True)
-#     clues_ranked = clues_ranked[~clues_ranked["label"].isin(UNNECESSARY_LABELS)]
-#     clues_ranked = clues_ranked[clues_ranked["answers"].str.len() > 0]
-#     clues_ranked.loc[:, "category"] = clues_ranked.apply(_get_category, axis=1)
-#     clues_ranked.dropna(subset=["category"], inplace=True)
-#     clues_ranked.loc[:, "answers"] = clues_ranked.apply(_select_answers, axis=1)
-#     clues_ranked.dropna(subset=["answers"], inplace=True)
-#     clues_ranked.loc[:, "frequency"] = clues_ranked["answers"].apply(len)
-#     return clues_ranked.sort_values(by="frequency", ascending=False)
-
 def get_ranked_clues(category):
-    clues_ranked = pd.DataFrame(get_clues(db, category))
-    clues_ranked.dropna(subset=["clue", "answer", "category"], inplace=True)
-    clues_ranked["_id"] = clues_ranked["_id"].apply(str)
-    clues_ranked = clues_ranked[~clues_ranked["label"].isin(UNNECESSARY_LABELS)]
-    clues_ranked = clues_ranked[clues_ranked["answers"].str.len() > 0]
-    clues_ranked.loc[:, "answers"] = clues_ranked.apply(_select_answers, axis=1)
-    clues_ranked.loc[:, "frequency"] = clues_ranked["answers"].apply(len)
-    clues_ranked.drop(columns=["answers"], inplace=True)
-    return clues_ranked.sort_values(by="frequency", ascending=False).to_dict(orient="records")
+    result = list(db["clues"].find({"category": category}))
+    if result:
+        clues_ranked = pd.DataFrame(result)
+        clues_ranked.dropna(subset=["clue", "answer", "category"], inplace=True)
+        clues_ranked["_id"] = clues_ranked["_id"].apply(str)
+        clues_ranked = clues_ranked[~clues_ranked["label"].isin(UNNECESSARY_LABELS)]
+        clues_ranked = clues_ranked[clues_ranked["answers"].str.len() > 0]
+        clues_ranked.loc[:, "answers"] = clues_ranked.apply(_select_answers, axis=1)
+        clues_ranked.loc[:, "frequency"] = clues_ranked["answers"].apply(len)
+        clues_ranked.drop(columns=["answers"], inplace=True)
+        return clues_ranked.sort_values(by="frequency", ascending=False).to_dict(orient="records")
+    raise HTTPException(status_code=404, detail=f'"{category}" is not a valid category.')
 
-# def get_grouped_clues():
-#     clues = _get_ranked_clues()
-#     return clues.groupby("category").apply(
-#         lambda category: category.to_dict(orient="records"), include_groups=False
-#     ).to_dict()
+def update_clue(clue_id, clue):
+    result = db["clues"].update_one({"_id": ObjectId(clue_id)}, {"$set": {**clue, "verified": True}})
+    if not result.matched_count:
+        raise HTTPException(status_code=404, detail=f"A clue with id {clue_id} does not exist.")
 
-# def get_category_clues(category):
-#     clues = _get_ranked_clues()
-#     return clues.loc[clues["category"] == category].to_dict(orient="records")
+def delete_clue(clue_id):
+    result = db["clues"].delete_one({"_id": ObjectId(clue_id)})
+    if not result.deleted_count:
+        raise HTTPException(status_code=404, detail=f"A clue with id {clue_id} does not exist.")
 
 def _get_category_migrate(clue):
     return _get_category(clue) if clue["answers"] else None
