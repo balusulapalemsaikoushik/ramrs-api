@@ -46,10 +46,13 @@ def _select_answers(clue):
         print(f'WARNING: The answers for clue "{clue["clue"]}" need attention')
         return None
 
-def get_ranked_clues(category):
-    result = list(db["clues"].find({"category": category}))
-    if result:
-        clues_ranked = pd.DataFrame(result)
+def get_ranked_clues(category, nresults: int | None = None, verified: bool | None = None):
+    query = {"category": category}
+    if verified is not None:
+        query["verified"] = verified
+    data = db["clues"].find(query)
+    if (clues := list(data)):
+        clues_ranked = pd.DataFrame(clues)
         clues_ranked.dropna(subset=["clue", "answer", "category"], inplace=True)
         clues_ranked["_id"] = clues_ranked["_id"].apply(str)
         clues_ranked = clues_ranked[~clues_ranked["label"].isin(UNNECESSARY_LABELS)]
@@ -57,7 +60,10 @@ def get_ranked_clues(category):
         clues_ranked.loc[:, "answers"] = clues_ranked.apply(_select_answers, axis=1)
         clues_ranked.loc[:, "frequency"] = clues_ranked["answers"].apply(len)
         clues_ranked.drop(columns=["answers"], inplace=True)
-        return clues_ranked.sort_values(by="frequency", ascending=False).to_dict(orient="records")
+        result = clues_ranked.sort_values(by="frequency", ascending=False)
+        if nresults is not None:
+            result = result.head(nresults)
+        return result.to_dict(orient="records")
     raise HTTPException(status_code=404, detail=f'"{category}" is not a valid category.')
 
 def update_clue(clue_id, clue):
