@@ -18,7 +18,7 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 async def main():
     return {
-        "message": "welcome to version 0.2.1 of the ramrs api"
+        "message": "welcome to version 0.2.2 of the ramrs api"
     }
 
 @app.get("/categories/{category}", response_model=List[Clue])
@@ -27,7 +27,7 @@ async def get_category_clues(category: str, nresults: int | None = None, verifie
         if nresults < 0:
             raise HTTPException(
                 status_code=400,
-                details="Query parameter \"nresults\" must be a positive integer or zero."
+                detail="Query parameter \"nresults\" must be a positive integer or zero."
             )
     return crud.get_ranked_clues(category, nresults, verified)
 
