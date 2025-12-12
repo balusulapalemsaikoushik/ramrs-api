@@ -18,7 +18,7 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 async def main():
     return {
-        "message": "welcome to version 0.2.2 of the ramrs api"
+        "message": "welcome to version 0.2.3 of the ramrs api"
     }
 
 @app.get("/categories/{category}", response_model=List[Clue])
@@ -30,6 +30,10 @@ async def get_category_clues(category: str, nresults: int | None = None, verifie
                 detail="Query parameter \"nresults\" must be a positive integer or zero."
             )
     return crud.get_ranked_clues(category, nresults, verified)
+
+@app.get("/clues/{clue}")
+async def get_clue(clue: str):
+    return crud.get_clue(clue)
 
 @app.patch("/clues/{clue_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_clue(clue_id: str, clue: ClueUpdate, claims: dict = Depends(validate_token)):

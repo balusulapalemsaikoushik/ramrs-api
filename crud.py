@@ -66,6 +66,12 @@ def get_ranked_clues(category, nresults: int | None = None, verified: bool | Non
         return result.to_dict(orient="records")
     raise HTTPException(status_code=404, detail=f'"{category}" is not a valid category.')
 
+def get_clue(clue):
+    result = db["clues"].find_one({"clue": clue})
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Clue \"{clue}\" does not exist.")
+    return result | {"_id": str(result.pop("_id"))}
+
 def update_clue(clue_id, clue):
     result = db["clues"].update_one({"_id": ObjectId(clue_id)}, {"$set": {**clue, "verified": True}})
     if not result.matched_count:
